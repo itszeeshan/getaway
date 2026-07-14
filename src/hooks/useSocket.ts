@@ -8,12 +8,17 @@ let globalSocket: Socket | null = null;
 
 function getSocket(): Socket {
   if (!globalSocket) {
-    globalSocket = io({
+    const options = {
       autoConnect: true,
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
-    });
+    };
+    // When the frontend is hosted without the game server (e.g. Vercel),
+    // NEXT_PUBLIC_SOCKET_URL points at the standalone socket server.
+    // Otherwise connect to the same origin (local dev, single-server deploys).
+    const url = process.env.NEXT_PUBLIC_SOCKET_URL;
+    globalSocket = url ? io(url, options) : io(options);
   }
   return globalSocket;
 }
